@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from .core.security import require_role, require_user
-from .database import get_db as _get_db
-from .models import User, UserRole
+from core.security import require_role, require_user
+from database import get_db as _get_db
+from models import User, UserRole
 
 
 def get_db():
