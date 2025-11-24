@@ -28,7 +28,7 @@ from routers import (
     quiz,
     submission,
 )
-from .models import User, UserRole
+from models import User, UserRole
 
 Base.metadata.create_all(bind=engine)
 
