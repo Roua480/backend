@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
-from ..core.config import settings
-from ..core.csrf import issue_csrf
-from ..core.security import (
+from core.config import settings
+from core.csrf import issue_csrf
+from core.security import (
     clear_session_cookie,
     create_session,
     hash_password,
@@ -12,13 +12,14 @@ from ..core.security import (
     set_session_cookie,
     verify_password,
 )
-from ..database import get_db
-from ..models import Session as DBSession
-from ..models import User
-from ..schemas import BasicOK, LoginIn, SignupIn
-from ..utils.email import send_reset_email, send_verification_email
-from ..utils.tokens import consume_token
-from ..utils.totp import verify_totp
+from database import get_db
+from models import Session as DBSession
+from models import User
+from schemas import BasicOK, LoginIn, SignupIn
+from utils.email import send_reset_email, send_verification_email
+from utils.tokens import consume_token
+from utils.totp import verify_totp
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
