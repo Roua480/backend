@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr
 
-from .models import UserRole
+from models import UserRole
 
 
 class OrmBase(BaseModel):
