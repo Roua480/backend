@@ -10,13 +10,13 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from .core.config import settings
-from .core.csrf import csrf_protect
-from .core.ratelimit import rate_limit
-from .core.security import hash_password, password_policy_ok
-from .database import Base, SessionLocal, engine
-from .middleware.security_headers import SecurityHeadersMiddleware
-from .routers import (
+from core.config import settings
+from core.csrf import csrf_protect
+from core.ratelimit import rate_limit
+from core.security import hash_password, password_policy_ok
+from database import Base, SessionLocal, engine
+from middleware.security_headers import SecurityHeadersMiddleware
+from routers import (
     admin,
     assignment,
     auth,
