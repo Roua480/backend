@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
-from ..models import Token, User
+from models import Token, User
 
 
 def make_token(db: Session, user: User, purpose: str, minutes: int) -> str:
