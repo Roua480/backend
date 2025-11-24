@@ -2,7 +2,7 @@ import secrets
 
 from fastapi import HTTPException, Request, Response, status
 
-from .config import settings
+from config import settings
 
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
