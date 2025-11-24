@@ -3,7 +3,7 @@ from collections import defaultdict, deque
 
 from fastapi import HTTPException, Request, status
 
-from .config import settings
+from config import settings
 
 WINDOW_SECONDS = 60
 _buckets: dict[str, deque[float]] = defaultdict(deque)
