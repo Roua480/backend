@@ -3,9 +3,10 @@ from email.message import EmailMessage
 
 from sqlalchemy.orm import Session
 
-from ..core.config import settings
-from ..models import User
+from core.config import settings
+from models import User
 from .tokens import make_token
+
 
 
 def _send_mail(to: str, subject: str, body: str) -> None:
