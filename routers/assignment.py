@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from models import models, schemas
+import models
+import schemas
 from database import get_db
 from deps import get_current_user, require_instructor
 from core.config import settings
