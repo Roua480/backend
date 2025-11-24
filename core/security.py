@@ -7,10 +7,11 @@ from fastapi import Depends, HTTPException, Request, Response, status
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import Session as DBSession
-from models import User, UserRole
-from core.config import settings
+from ..database import get_db
+from ..models import Session as DBSession
+from ..models import User, UserRole
+from .config import settings
+
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
