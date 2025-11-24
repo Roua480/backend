@@ -5,11 +5,11 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from ..core.config import settings
-from ..database import get_db
-from ..deps import get_current_user, require_admin
-from ..models import InstructorRequest, User, UserRole
-from ..schemas import (
+from core.config import settings
+from database import get_db
+from deps import get_current_user, require_admin
+from models import InstructorRequest, User, UserRole
+from schemas import (
     BasicOK,
     InstructorRequestAdminOut,
     InstructorRequestOut,
