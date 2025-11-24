@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from ..deps import get_current_user
-from ..models import User
-from ..schemas import UserOut
+from deps import get_current_user
+from models import User
+from schemas import UserOut
+
 
 router = APIRouter(prefix="/me", tags=["Me"])
 
