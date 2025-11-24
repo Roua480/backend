@@ -10,7 +10,6 @@ import schemas
 from database import get_db
 from deps import get_current_user, require_instructor
 from core.config import settings
-gs
 
 router = APIRouter(prefix="/submissions", tags=["Submissions"])
 
