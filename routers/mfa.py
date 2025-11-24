@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..deps import get_current_user
-from ..models import User
-from ..schemas import BasicOK, MFAEnrollOut, MFAVerifyIn
-from ..utils.tokens import consume_token, make_token
-from ..utils.totp import create_totp_secret, make_otpauth_uri, verify_totp
+from database import get_db
+from deps import get_current_user
+from models import User
+from schemas import BasicOK, MFAEnrollOut, MFAVerifyIn
+from utils.tokens import consume_token, make_token
+from utils.totp import create_totp_secret, make_otpauth_uri, verify_totp
+
 
 router = APIRouter(prefix="/auth/mfa/totp", tags=["MFA"])
 
