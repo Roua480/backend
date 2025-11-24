@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import Session as DBSession
 from models import User, UserRole
-from config import settings
+from core.config import settings
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
