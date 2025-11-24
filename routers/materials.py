@@ -3,10 +3,11 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
-from .. import models, schemas
-from ..database import get_db
-from ..deps import get_current_user, require_instructor
-from ..core.config import settings
+import models
+import schemas
+from database import get_db
+from deps import get_current_user, require_instructor
+from core.config import settings
 
 router = APIRouter(prefix="/materials", tags=["Materials"])
 
