@@ -10,13 +10,13 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.config import settings
-from core.csrf import csrf_protect
-from core.ratelimit import rate_limit
-from core.security import hash_password, password_policy_ok
-from database import Base, SessionLocal, engine
-from middleware.security_headers import SecurityHeadersMiddleware
-from routers import (
+from .core.config import settings
+from .core.csrf import csrf_protect
+from .core.ratelimit import rate_limit
+from .core.security import hash_password, password_policy_ok
+from .database import Base, SessionLocal, engine
+from .middleware.security_headers import SecurityHeadersMiddleware
+from .routers import (
     admin,
     assignment,
     auth,
@@ -28,7 +28,7 @@ from routers import (
     quiz,
     submission,
 )
-from models import User, UserRole
+from .models import User, UserRole
 
 Base.metadata.create_all(bind=engine)
 
@@ -66,68 +66,70 @@ def ensure_seed_admin() -> None:
 
 ensure_seed_admin()
 
-# -------------------------------
-# 🚀 Create FastAPI app
-# -------------------------------
 app = FastAPI(title=settings.APP_NAME)
 
-# -------------------------------
-# 🚀 CORS – MUST come before CSRF
-# -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,  # set in settings.py
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Security headers
 app.add_middleware(SecurityHeadersMiddleware)
-
-# Serve uploaded files
+# Serve uploaded files (assignments/submissions)
 Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
-# -------------------------------
-# 🚀 Rate limit middleware
-# -------------------------------
+
 @app.middleware("http")
 async def _rate_limit(request, call_next):
     await rate_limit(request)
     return await call_next(request)
 
-# -------------------------------
-# 🚀 CSRF Middleware (updated)
-# -------------------------------
+
 @app.middleware("http")
 async def _csrf(request, call_next):
     path = request.url.path
-
-    # Allow OPTIONS always (fix 400 preflight)
-    if request.method == "OPTIONS":
-        return await call_next(request)
-
-    # Routes that do NOT require CSRF
-    CSRF_EXEMPT = (
-        path.endswith("/auth/csrf")
+    if (
+        request.method in ("GET", "HEAD", "OPTIONS")
+        or path.endswith("/auth/csrf")
         or path.startswith("/auth/login")
         or path.startswith("/auth/signup")
         or path.startswith("/auth/verify-email")
         or path.startswith("/auth/reset")
         or path.startswith("/auth/logout")
-        or request.method in ("GET", "HEAD")
-    )
+        
 
-    if CSRF_EXEMPT:
+    ):
         return await call_next(request)
-
-    # Real CSRF enforcement
     try:
         csrf_protect(request)
-    except Exception as exc:
+    except Exception as exc:  # return a clean 403 instead of crashing the middleware stack
         from fastapi.responses import JSONResponse
         from fastapi import HTTPException
 
         if isinstance(exc, HTTPException):
-            return JSONResponse(s
+            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return JSONResponse(status_code=403, content={"detail": "CSRF check failed"})
+    return await call_next(request)
+
+
+app.include_router(auth.router)
+app.include_router(mfa.router)
+app.include_router(me.router)
+app.include_router(instructor_requests.router)
+app.include_router(classrooms.router)
+app.include_router(assignment.router)
+app.include_router(materials.router)
+app.include_router(quiz.router)
+app.include_router(submission.router)
+app.include_router(admin.router)
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.get("/")
+def read_root():
+    return {"status": "ok"}
