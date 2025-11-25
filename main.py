@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-# Absolute imports (Render requires this)
 from core.config import settings
 from core.csrf import csrf_protect
 from core.ratelimit import rate_limit
@@ -117,6 +116,7 @@ async def _rate_limit(request, call_next):
 async def _csrf(request, call_next):
     path = request.url.path
 
+    # Public / CSRF-exempt endpoints
     if (
         request.method in ("GET", "HEAD", "OPTIONS")
         or path.endswith("/auth/csrf")
@@ -136,7 +136,8 @@ async def _csrf(request, call_next):
 
         if isinstance(exc, HTTPException):
             return JSONResponse(
-                status_code=exc.status_code, content={"detail": exc.detail}
+                status_code=exc.status_code,
+                content={"detail": exc.detail},
             )
 
         return JSONResponse(status_code=403, content={"detail": "CSRF check failed"})
@@ -160,7 +161,7 @@ app.include_router(admin.router)
 
 
 # -------------------------------
-# Health Check
+# Health Check + Root
 # -------------------------------
 @app.get("/health")
 def health():
@@ -169,4 +170,5 @@ def health():
 
 @app.get("/")
 def read_root():
+    # Used by Render’s “HEAD /” and by simple health checks
     return {"status": "ok"}
