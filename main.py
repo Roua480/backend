@@ -66,66 +66,68 @@ def ensure_seed_admin() -> None:
 
 ensure_seed_admin()
 
+# -------------------------------
+# 🚀 Create FastAPI app
+# -------------------------------
 app = FastAPI(title=settings.APP_NAME)
 
+# -------------------------------
+# 🚀 CORS – MUST come before CSRF
+# -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.CORS_ORIGINS,  # set in settings.py
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Security headers
 app.add_middleware(SecurityHeadersMiddleware)
-# Serve uploaded files (assignments/submissions)
+
+# Serve uploaded files
 Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
-
+# -------------------------------
+# 🚀 Rate limit middleware
+# -------------------------------
 @app.middleware("http")
 async def _rate_limit(request, call_next):
     await rate_limit(request)
     return await call_next(request)
 
-
+# -------------------------------
+# 🚀 CSRF Middleware (updated)
+# -------------------------------
 @app.middleware("http")
 async def _csrf(request, call_next):
     path = request.url.path
-    if (
-        request.method in ("GET", "HEAD", "OPTIONS")
-        or path.endswith("/auth/csrf")
+
+    # Allow OPTIONS always (fix 400 preflight)
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
+    # Routes that do NOT require CSRF
+    CSRF_EXEMPT = (
+        path.endswith("/auth/csrf")
         or path.startswith("/auth/login")
         or path.startswith("/auth/signup")
         or path.startswith("/auth/verify-email")
         or path.startswith("/auth/reset")
         or path.startswith("/auth/logout")
-        
+        or request.method in ("GET", "HEAD")
+    )
 
-    ):
+    if CSRF_EXEMPT:
         return await call_next(request)
+
+    # Real CSRF enforcement
     try:
         csrf_protect(request)
-    except Exception as exc:  # return a clean 403 instead of crashing the middleware stack
+    except Exception as exc:
         from fastapi.responses import JSONResponse
         from fastapi import HTTPException
 
         if isinstance(exc, HTTPException):
-            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
-        return JSONResponse(status_code=403, content={"detail": "CSRF check failed"})
-    return await call_next(request)
-
-
-app.include_router(auth.router)
-app.include_router(mfa.router)
-app.include_router(me.router)
-app.include_router(instructor_requests.router)
-app.include_router(classrooms.router)
-app.include_router(assignment.router)
-app.include_router(materials.router)
-app.include_router(quiz.router)
-app.include_router(submission.router)
-app.include_router(admin.router)
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+            return JSONResponse(s
